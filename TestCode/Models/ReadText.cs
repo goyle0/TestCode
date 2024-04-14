@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace TestCode.Models
 {
-    public class ReadText
+    public sealed class ReadText
     {
         public List<MyEntity> ReadTextFile()
         {
@@ -20,7 +20,9 @@ namespace TestCode.Models
                     dataList = ParseFile(reader).ToList();
                 }
 
-                dataList = dataList.OrderBy(entity => entity.EmploymentDate).ToList();
+                dataList = dataList.OrderBy(entity => entity.ID)
+                                   .ThenBy(entity => entity.EmploymentDate)
+                                   .ToList();
 
                 return dataList;
             }
@@ -42,25 +44,33 @@ namespace TestCode.Models
         private MyEntity ParseLine(string line)
         {
             string[] values = line.Split(',');
-            MyEntity entity = new MyEntity
-            {
-                ID = values[0].Trim(),
-                Name = values[1].Trim(),
-                Age = int.Parse(values[2].Trim()),
-                Gender = values[3].Trim(),
-                EmploymentDate = DateTime.Parse(values[4].Trim())
-            };
+            MyEntity entity = new MyEntity(
+                id: values[0].Trim(),
+                name: values[1].Trim(),
+                age: int.Parse(values[2].Trim()),
+                gender: values[3].Trim(),
+                employmentDate: DateTime.Parse(values[4].Trim())
+            );
             return entity;
         }
     }
 }
-public class MyEntity
+public sealed class MyEntity
 {
-    public string ID { get; set; }
-    public string Name { get; set; }
-    public int Age { get; set; }
-    public string Gender { get; set; }
-    public DateTime EmploymentDate { get; set; }
+    public string ID { get; private set; }
+    public string Name { get; private set; }
+    public int Age { get;  private set; }
+    public string Gender { get; private set; }
+    public DateTime EmploymentDate { get; private set; }
+
+    public MyEntity(string id, string name, int age, string gender, DateTime employmentDate)
+    {
+        ID = id;
+        Name = name;
+        Age = age;
+        Gender = gender;
+        EmploymentDate = employmentDate;
+    }
 
     public override string ToString()
     {
